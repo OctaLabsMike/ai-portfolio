@@ -17,6 +17,3 @@ echo "N8N_ENCRYPTION_KEY=$(openssl rand -hex 32)" > .env
 docker compose up -d
 ```
 
-Editor: http://localhost:5678
-
-> `.env` holds the encryption key for stored credentials and is excluded from the repository.

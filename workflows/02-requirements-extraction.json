@@ -1,0 +1,238 @@
+{
+  "updatedAt": "2026-11-12T12:02:07.229Z",
+  "createdAt": "2026-11-12T11:24:59.116Z",
+  "id": "xcZbFhpqFRXru6Vc",
+  "name": "Job order creation from document",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "92b6259b-ca45-48f7-8040-6e10bf1b78fc",
+      "name": "When clicking ‘Execute workflow’",
+      "notesInFlow": true,
+      "retryOnFail": false,
+      "waitBetweenTries": 5000,
+      "notes": "Manual start for testing. Will be replaced by an email or form trigger."
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Extract the job requirements from the client document below.\nUse only information stated in the document. Do not guess.\n\nFormatting rules:\n- start_date: ISO format YYYY-MM-DD.\n- work_mode: exactly one of \"remote\", \"hybrid\", \"onsite\". Put details (e.g. office days) in work_mode_details.\n- client_budget: the rate or budget stated by the client, with currency and unit. If the client asks for our rate instead, leave it empty.\n- job_description: 1–2 sentence summary of the role and responsibilities.\n\nIf a field is not stated, use an empty string or an empty array,\nand add the field name with a short note to \"missing_info\".\n\nDocument:\n{{ $json.document }}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        448,
+        0
+      ],
+      "id": "c13d013e-656e-4da5-80de-78e61e6f65a0",
+      "name": "Basic LLM Chain",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "notesInFlow": true,
+      "notes": "Extracts job requirements from the client document into structured JSON. Missing data → missing_info."
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-haiku-4-5-20251001",
+          "mode": "list",
+          "cachedResultName": "Claude Haiku 4.5"
+        },
+        "options": {
+          "maxTokensToSample": 1024,
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.6,
+      "position": [
+        336,
+        208
+      ],
+      "id": "7ffbb819-4d15-41b3-8dac-ea828eecf64c",
+      "name": "Anthropic Chat Model",
+      "notesInFlow": true,
+      "credentials": {
+        "anthropicApi": {
+          "id": "xxTNKjbK86jbYv3a",
+          "name": "Anthropic account"
+        }
+      },
+      "notes": "Claude Haiku 4.5, temperature 0 for consistent extraction, max 1024 tokens."
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"client\": \"Example Company\",\n  \"position\": \"Senior Java Developer\",\n  \"headcount\": 1,\n  \"seniority\": \"Senior\",\n  \"location\": \"Warsaw\",\n  \"work_mode\": \"hybrid\",\n  \"work_mode_details\": \"3 days per week in the office\",\n  \"start_date\": \"2027-01-15\",\n  \"duration_months\": 12,\n  \"client_budget\": \"900 PLN/day net B2B\",\n  \"job_description\": \"Development of an internal banking application\",\n  \"must_have_skills\": [\"Java\", \"Spring Boot\"],\n  \"nice_to_have_skills\": [\"Kafka\"],\n  \"languages\": [\"English B2\"],\n  \"missing_info\": [\"client_budget: client asks for our rate\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        576,
+        208
+      ],
+      "id": "588e460d-2a12-44a9-9b15-ae0a1c92bd3a",
+      "name": "Structured Output Parser",
+      "notesInFlow": true,
+      "notes": "Validates the model output against the schema generated from the JSON example."
+    },
+    {
+      "parameters": {
+        "content": "## 02 – Requirements extraction\nClient document → Claude (Haiku 4.5) → structured JSON.\nFirst building block of the cjo workflow (automated job orders).\nAll data is fictional.",
+        "height": 176,
+        "width": 464
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        -224
+      ],
+      "id": "d10e9d91-ecab-4bae-a444-db9d3acbf48b",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "68987d2d-2094-45fc-b5f1-9a2a030e8639",
+              "name": "document",
+              "value": "Client: Baltic Freight Systems sp. z o.o. Subject: Request for contractors – Senior Data Engineer  We are looking for 2 Senior Data Engineers to join our logistics analytics team. Start: 1 February 2027, initial contract 12 months with an extension option. Location: Gdańsk, hybrid (2 days per week in the office).  Required: 5+ years in data engineering, Python, SQL, Apache Spark, experience with Azure Data Factory or Databricks. Nice to have: Kafka, Terraform, experience in logistics or transport. Languages: English min. B2, Polish is an advantage. Please provide your B2B daily rate.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "8583c240-023c-43c1-9b80-c9789ceb46ee",
+      "name": "Edit Fields",
+      "notesInFlow": true,
+      "notes": "Sample client document (fictional data) used as test input"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "d5bb860e-b2c8-49c5-a0a8-36e167a39b45",
+  "activeVersionId": null,
+  "versionCounter": 59,
+  "triggerCount": 0,
+  "sourceWorkflowId": null,
+  "shared": [
+    {
+      "updatedAt": "2026-11-12T11:24:59.118Z",
+      "createdAt": "2026-11-12T11:24:59.118Z",
+      "role": "workflow:owner",
+      "workflowId": "xcZbFhpqFRXru6Vc",
+      "projectId": "fSj77vMHsSMWGFGf",
+      "project": {
+        "updatedAt": "2026-11-10T13:05:56.727Z",
+        "createdAt": "2026-11-10T12:53:55.957Z",
+        "id": "fSj77vMHsSMWGFGf",
+        "name": "Michał Przygórski <michal.przygorski@icloud.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "60d8a28e-1348-4d35-97d9-cab6777b9370"
+      }
+    }
+  ],
+  "tags": [],
+  "parentFolder": null,
+  "activeVersion": null,
+  "scopes": [
+    "execution:delete",
+    "execution:list",
+    "execution:read",
+    "execution:reveal",
+    "workflow:create",
+    "workflow:delete",
+    "workflow:disableRedaction",
+    "workflow:enableRedaction",
+    "workflow:execute",
+    "workflow:execute-chat",
+    "workflow:export",
+    "workflow:import",
+    "workflow:list",
+    "workflow:move",
+    "workflow:publish",
+    "workflow:read",
+    "workflow:share",
+    "workflow:unpublish",
+    "workflow:unshare",
+    "workflow:update"
+  ],
+  "checksum": "17344a7b4e604aec22823caf938bd79c7907ae509fdbb881d3ea34aab8926783"
+}

@@ -11,9 +11,4 @@ All examples use fictional data (a made-up company, clients and rate card).
 ## Running n8n locally
 Requirements: Docker with the Compose plugin (tested on Ubuntu 24.04 in WSL2).
 
-```bash
-cd n8n
-echo "N8N_ENCRYPTION_KEY=$(openssl rand -hex 32)" > .env
-docker compose up -d
-```
 

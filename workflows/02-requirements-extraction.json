@@ -1,6 +1,6 @@
 [
   {
-    "updatedAt": "2026-11-15T13:16:19.457Z",
+    "updatedAt": "2026-11-15T13:28:34.847Z",
     "createdAt": "2026-11-12T11:24:59.116Z",
     "id": "xcZbFhpqFRXru6Vc",
     "name": "Job order creation from document",
@@ -90,16 +90,16 @@
       },
       {
         "parameters": {
-          "content": "Requirements extraction\nClient document → Claude (Haiku 4.5) → structured JSON.\nFirst building block of the cjo workflow (automated job orders).\nAll data is fictional.",
-          "height": 176,
-          "width": 464,
+          "content": "## cjo – Job order from client document\nClient document → structured job requirements, ready for rate lookup and ATS.\nAll data is fictional.\n\n**Flow**\n1. **Basic LLM Chain** (Claude Haiku 4.5, temp 0) + Structured Output Parser – extracts requirements to JSON\n2. **Check required** – rule-based validation: required fields the model left empty are added to `missing_info`\n3. **If** – anything missing?\n   - **yes** → **Prepare review** → **Wait** (form, 48h limit) → **Merge answers**\n   - **no** → **Normalize**\n4. **Requirements – final** – one output shape for both branches (`human_review` = audit trail)\n\n**Design**\n- LLM extracts, code validates\n- Human is asked only about what is missing\n- Timeout leaves unresolved items flagged, never silently filled\n\n**Next:** rate lookup → HTML job order → POST to ATS (mock)",
+          "height": 400,
+          "width": 736,
           "color": 4
         },
         "type": "n8n-nodes-base.stickyNote",
         "typeVersion": 1,
         "position": [
-          -896,
-          -240
+          -1072,
+          -592
         ],
         "id": "d10e9d91-ecab-4bae-a444-db9d3acbf48b",
         "name": "Sticky Note"
@@ -455,9 +455,9 @@
         }
       ]
     },
-    "versionId": "1271676d-b6d4-4fda-8166-efe4ed7cd48d",
+    "versionId": "61ab3e36-c633-4783-b615-35ea6cd5e0cd",
     "activeVersionId": null,
-    "versionCounter": 245,
+    "versionCounter": 248,
     "triggerCount": 0,
     "sourceWorkflowId": null,
     "tags": [],

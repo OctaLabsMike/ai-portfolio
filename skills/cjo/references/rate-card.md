@@ -1,52 +1,61 @@
-# Rate card (fictional)
+# Rate card and pricing rules
 
-Daily rates, **PLN net, B2B contract**, `[min, max]`. Same values as in the n8n workflow. All data is fictional.
+The rate card is an Excel file: **`assets/rate-card.xlsx`**. All rates are fictional and for demo purposes only. Edit the Excel file, not this document. `scripts/lookup_rate.py` reads it on every run.
 
-| role | junior | mid | senior | lead |
-|---|---|---|---|---|
-| backend_developer | 600–800 | 900–1150 | 1250–1550 | 1550–1850 |
-| frontend_developer | 550–750 | 850–1100 | 1150–1450 | 1450–1750 |
-| fullstack_developer | 600–800 | 900–1200 | 1250–1600 | 1600–1900 |
-| devops_engineer | 650–850 | 1000–1250 | 1350–1700 | 1700–2000 |
-| data_engineer | 600–800 | 950–1200 | 1300–1650 | 1650–1950 |
-| qa_engineer | 450–650 | 700–950 | 1000–1250 | 1250–1500 |
-| business_analyst | 500–700 | 800–1050 | 1100–1400 | 1400–1700 |
-| project_manager | 550–750 | 850–1100 | 1200–1500 | 1500–1800 |
+## Excel structure
 
-## Seniority mapping
+| Sheet | Columns | Purpose |
+|---|---|---|
+| `rates` | `role`, `seniority`, `rate_min`, `rate_max`, `currency`, `unit` | Client daily rates, PLN net B2B. One row per role × seniority. |
+| `role_aliases` | `alias`, `role`, `priority` | Maps a job title to a role. Lower `priority` is checked first; within a priority, longer aliases win. Matching is whole-word and case-insensitive. |
+| `seniority_map` | `term`, `seniority` | Maps a stated seniority (incl. Polish terms) to `junior` / `mid` / `senior` / `lead`. |
+| `settings` | `key`, `value` | `working_days_per_month` (21), currency, unit. |
 
-| Stated in the document | Level |
-|---|---|
-| junior, młodszy, intern, trainee | `junior` |
-| mid, regular, medior | `mid` |
-| senior, starszy, expert | `senior` |
-| lead, tech lead, team lead, principal, architect | `lead` |
+Roles in the demo rate card: `backend_engineer`, `frontend_engineer`, `fullstack_engineer`, `qa_engineer`, `architect` (senior and lead only), `business_analyst`, `system_analyst`, `project_manager`.
 
-If seniority is not stated, it is a missing required field (step 2). Ask; do not derive it from years of experience.
+If a title matches no alias, or a role has no row for that seniority, there is **no match**. Never pick the "closest" role. Examples of no-match titles: data engineer, DevOps engineer, data scientist, Scrum Master, UX designer, mid-level architect.
 
-## Role mapping
+`fullstack` has priority 1, so "Fullstack Java Developer" maps to `fullstack_engineer`, not `backend_engineer`. `architect` has priority 2.
 
-Map by what the person will do, not by the exact title:
+## Rate sources
 
-| Title examples | role |
-|---|---|
-| Backend / Java / .NET / Python / Go / Node.js developer | `backend_developer` |
-| Frontend / React / Angular / Vue developer | `frontend_developer` |
-| Fullstack developer | `fullstack_developer` |
-| DevOps / Cloud / Platform / SRE engineer | `devops_engineer` |
-| Data engineer, ETL / big data developer | `data_engineer` |
-| QA / test engineer, tester, test automation engineer | `qa_engineer` |
-| Business / system analyst | `business_analyst` |
-| Project manager, delivery manager | `project_manager` |
+| Source | Rate it gives | `--basis` |
+|---|---|---|
+| `client_budget` | client rate (from the document) | `client` |
+| `rate_card` | client rate | `client` |
+| `market` | candidate rate (what contractors earn on job boards) | `candidate` |
+| `manual` | user states client or candidate | `client` / `candidate` |
 
-Not in the rate card → **pricing review required**. Examples: data scientist, ML engineer, Scrum Master, UX/UI designer, mobile developer, SAP consultant, security engineer. Never pick the "closest" role.
+## Market check
 
-## Contract value
+- Portals: justjoin.it, nofluffjobs.com, pracuj.pl. Offers in Poland with a stated B2B rate.
+- Comparable offer: same role family, same seniority, overlapping main must-have skills.
+- Normalization (in the script): month ÷ 21, hour × 8, day as is.
+- Result: median of offer minimums – median of offer maximums. At least 3 offers, otherwise insufficient data.
+- Always list the sources (title, portal, rate, URL) in the job order.
+
+## Margin and formulas
+
+Margin % is a percentage of the **client rate**:
 
 ```
-estimated contract value = daily rate × 21 working days × duration_months × headcount
+candidate rate = client rate × (1 − margin%)          # basis: client
+client rate    = candidate rate ÷ (1 − margin%)       # basis: candidate
 ```
 
-Calculate it for both ends of the range. Example: data_engineer / senior, 12 months, 2 people:
-- min: 1300 × 21 × 12 × 2 = 655 200 PLN
-- max: 1650 × 21 × 12 × 2 = 831 600 PLN
+Fixed margin (PLN per day):
+
+```
+candidate rate = client rate − margin
+client rate    = candidate rate + margin
+```
+
+Contract value is based on the client rate:
+
+```
+estimated contract value = client rate × 21 days × duration_months × headcount
+```
+
+Example: `backend_engineer / senior`, 1 250–1 550 PLN/day, 20% margin, 12 months, 2 people:
+- max candidate rate: 1 000–1 240 PLN/day
+- contract value: 630 000–781 200 PLN

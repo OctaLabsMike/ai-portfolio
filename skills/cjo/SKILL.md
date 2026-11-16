@@ -1,6 +1,6 @@
 ---
 name: cjo
-description: Job order builder for IT staffing. Turns a client's requirements document (pasted text, .docx or .pdf) into a complete HTML job order ready to paste into an ATS. Extracts requirements into a fixed schema, asks the user about missing required fields instead of guessing, prices the role from the internal B2B rate card when the client asks for our rate, and flags roles outside the rate card for human review. Use when the user shares a client brief, role request, RFP or hiring requirements and wants a job order, ATS posting, offer or rate estimate, or mentions "cjo" or "job order".
+description: Job order builder for IT staffing. Turns a client's requirements document (pasted text, .docx or .pdf) into a complete HTML job order ready to paste into an ATS. Extracts requirements into a fixed schema, asks the user about missing required fields instead of guessing, when the client asks for our rate, offers a price from the Excel rate card, a job-board market check or a manual rate, applies a margin and shows the max candidate rate. Use when the user shares a client brief, role request, RFP or hiring requirements and wants a job order, ATS posting, offer or rate estimate, or mentions "cjo" or "job order".
 ---
 
 # cjo – job order builder
@@ -70,30 +70,54 @@ If the user explicitly says to generate anyway, do it: unresolved fields are sho
 
 ## Step 3 – Pricing
 
-- **`client_budget` is filled** → use it as the commercial basis and skip the rate card. Pricing status: `client_budget`.
-- **`client_budget` is empty** → price from `references/rate-card.md`:
-  1. Map `position` to a `role` key and `seniority` to a level (`junior` / `mid` / `senior` / `lead`) using the mapping rules in that file.
-  2. Look up the `[min, max]` daily rate (PLN net, B2B).
-  3. Estimated contract value = rate × 21 days × `duration_months` × `headcount`, for both min and max.
-  4. Show the calculation in the job order so it can be audited.
-  5. Pricing status: `rate_card`.
-- **Role or seniority not in the rate card** (or ambiguous) → do not guess a rate. Pricing status: `pricing_review_required`, and add a red **"Pricing review required"** banner to the job order with the reason.
+All arithmetic and rate-card lookups go through `scripts/lookup_rate.py` (run it with Python; it reads `assets/rate-card.xlsx`). Never calculate rates or contract values by hand and never take rates from general knowledge. Details and formulas: `references/rate-card.md`.
 
-Rates come only from the rate card file, never from general knowledge.
+Ask with the interactive question tool when available (same rules as step 2), otherwise in chat.
+
+### 3a. Choose the rate source
+
+- **`client_budget` is filled** → the client's budget is the client rate. Source: `client_budget`. Go to 3b.
+- **`client_budget` is empty** (client asks for our rate) → first run
+  `python scripts/lookup_rate.py lookup --position "<position>" --seniority "<seniority>"`,
+  then ask **"Which rate should we use?"** with these options:
+  1. Match found → **"Rate card: <rate_min>–<rate_max> PLN/day (<role> / <level>)"**. The amount must be in the label.
+     No match → replace this option with **"Skip – mark for pricing review"** and state the script's `reason` in the question text.
+  2. **"Market check (job boards)"**
+  3. **"Enter manually"**
+
+What each option does:
+- **Rate card** → client rate = the rate card range. Source: `rate_card`.
+- **Market check** → search justjoin.it, nofluffjobs.com and pracuj.pl for offers matching `position`, `seniority` and the main `must_have_skills`, in Poland, with a stated B2B rate. Collect up to 10 comparable offers (title, portal, rate range, unit, URL). Run
+  `python scripts/lookup_rate.py market --offer "18000-24000/month" --offer "150-180/hour" ...`
+  (one `--offer` per offer; units `month`, `hour` or `day`). If the result is `sufficient: false`, say so and offer "Enter manually" or "Skip – mark for pricing review". Otherwise show the count, the median candidate range and the sources, then ask **"Use market rate <min>–<max> PLN/day (candidate rate)?"** with options "Yes" / "Enter manually". Job-board rates are what contractors earn, so this is the **candidate rate**. Source: `market`.
+- **Enter manually** → ask for the daily rate (single value or range) and **"Is this the client rate or the candidate rate?"**. Source: `manual`.
+- **Skip** → no rate. Pricing status: `pricing_review_required`. Skip 3b and add the red **"Pricing review required"** banner with the reason.
+
+### 3b. Margin
+
+Ask **"What margin should we apply?"** with options "15%", "20%", "25%", "Fixed amount per day – I'll type it" and "Other %". Margin % is a percentage of the client rate. Then run:
+
+`python scripts/lookup_rate.py price --rate-min <min> [--rate-max <max>] --basis client|candidate (--margin-pct <p> | --margin-amount <PLN>) --months <duration_months> --headcount <headcount>`
+
+`--basis` is `candidate` for the market source, or for a manual rate given as a candidate rate. Otherwise it is `client`. The script returns the client rate, the **max candidate rate** and the estimated contract value (based on the client rate). Pricing status: `priced`.
+
+Add to the final JSON:
+`"pricing": { "status", "source", "role", "level", "client_rate_min", "client_rate_max", "margin", "candidate_rate_min", "candidate_rate_max", "contract_value_min", "contract_value_max", "market_sources": [{ "title", "portal", "rate", "url" }] }`
 
 ## Step 4 – Render the HTML job order
 
 Fill `assets/job-order-template.html`:
 - Replace every `{{placeholder}}`. Lists marked `<!-- repeat -->` get one `<li>` per item. An empty list gets a single `<li>–</li>`.
-- Keep only the pricing block for the current status (`client_budget`, `rate_card` or `pricing_review_required`) and delete the other two.
+- Pricing status `priced` → keep the *Commercials* table and delete the review banner. Delete the *Market sources* row unless the source is `market`. A single rate value (min = max) is shown as one number.
+- Pricing status `pricing_review_required` → keep only the review banner inside *Commercials*.
 - Delete the *Open points* box if `missing_info` is empty and pricing status is not `pricing_review_required`.
 - Keep all styles inline (`style="…"`): ATS rich-text editors strip `<style>` blocks and external CSS.
 - Numbers: thousands separated with a space, e.g. `655 200 PLN`. Dates: `YYYY-MM-DD`.
 
 Deliver:
 1. The HTML as a downloadable file named `job-order-<client-slug>-<position-slug>.html`. If file output is not available, put it in one code block.
-2. Below it, 2–3 short bullets: pricing status and open points (if any). Do not print the final JSON unless the user asks for it, and never use HTML tags such as `<details>` in the chat reply: the chat does not render them.
+2. Below it, 2–3 short bullets: rate source, client rate / max candidate rate, and open points (if any). Do not print the final JSON unless the user asks for it, and never use HTML tags such as `<details>` in the chat reply: the chat does not render them.
 
 ## Example
 
-`examples/` contains a fictional client brief (Baltic Freight Systems, 2 × Senior Data Engineer) and the resulting job order. It is the same test input as in the n8n workflow.
+`examples/` contains a fictional client brief (Baltic Freight Systems, 2 × Senior Data Engineer) and the resulting job order. It is the same test input as in the n8n workflow. *Data engineer* is not in the rate card, so the example shows the no-match path: the rate was entered manually (client rate 1 500 PLN/day, 20% margin).

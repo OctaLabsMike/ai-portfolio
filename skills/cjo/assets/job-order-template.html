@@ -71,22 +71,22 @@
     <div style="border:1px solid #dde1e6;border-radius:6px;padding:16px;background:#f9fafb;">
       <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#52606d;margin-bottom:8px;">Commercials · internal, not for candidates</div>
 
-      <!-- PRICING A: client_budget (keep only one of A / B / C) -->
+      <!-- PRICED: keep this table, delete the review banner -->
       <table style="width:100%;border-collapse:collapse;font-size:14px;">
-        <tr><td style="padding:4px 0;color:#52606d;width:42%;">Pricing basis</td><td style="padding:4px 0;">Client budget</td></tr>
-        <tr><td style="padding:4px 0;color:#52606d;">Client budget</td><td style="padding:4px 0;"><strong>{{client_budget}}</strong></td></tr>
+        <tr><td style="padding:4px 0;color:#52606d;width:42%;vertical-align:top;">Rate source</td><td style="padding:4px 0;">{{rate_source_label}}</td></tr>
+        <tr><td style="padding:4px 0;color:#52606d;vertical-align:top;">Client rate (daily, net B2B)</td><td style="padding:4px 0;"><strong>{{client_rate}} PLN</strong></td></tr>
+        <tr><td style="padding:4px 0;color:#52606d;vertical-align:top;">Margin</td><td style="padding:4px 0;">{{margin}}</td></tr>
+        <tr><td style="padding:4px 0;color:#52606d;vertical-align:top;">Max candidate rate (daily, net B2B)</td><td style="padding:4px 0;"><strong>{{candidate_rate}} PLN</strong></td></tr>
+        <tr><td style="padding:4px 0;color:#52606d;vertical-align:top;">Est. contract value</td><td style="padding:4px 0;"><strong>{{contract_value}} PLN</strong></td></tr>
+        <tr><td style="padding:4px 0;color:#52606d;vertical-align:top;">Calculation</td><td style="padding:4px 0;"><span style="font-size:12px;color:#52606d;">{{calculation}}</span></td></tr>
+        <!-- Market sources: only when rate source is market -->
+        <tr><td style="padding:4px 0;color:#52606d;vertical-align:top;">Market sources</td><td style="padding:4px 0;"><ul style="margin:0;padding-left:18px;font-size:12px;line-height:1.5;">
+            <!-- repeat: market_sources -->
+            <li><a href="{{url}}" style="color:#1f3a5f;">{{title}}</a> · {{portal}} · {{rate}}</li>
+          </ul></td></tr>
       </table>
 
-      <!-- PRICING B: rate_card -->
-      <table style="width:100%;border-collapse:collapse;font-size:14px;">
-        <tr><td style="padding:4px 0;color:#52606d;width:42%;">Pricing basis</td><td style="padding:4px 0;">Rate card (client asked for our rate)</td></tr>
-        <tr><td style="padding:4px 0;color:#52606d;">Rate card entry</td><td style="padding:4px 0;"><code style="font-size:13px;">{{role_key}} / {{seniority_key}}</code></td></tr>
-        <tr><td style="padding:4px 0;color:#52606d;">Daily rate (net, B2B)</td><td style="padding:4px 0;"><strong>{{rate_min}} – {{rate_max}} PLN</strong></td></tr>
-        <tr><td style="padding:4px 0;color:#52606d;">Est. contract value</td><td style="padding:4px 0;"><strong>{{value_min}} – {{value_max}} PLN</strong></td></tr>
-        <tr><td style="padding:4px 0;color:#52606d;">Calculation</td><td style="padding:4px 0;font-size:12px;color:#52606d;">rate × 21 days × {{duration_months}} months × {{headcount}} people</td></tr>
-      </table>
-
-      <!-- PRICING C: pricing_review_required -->
+      <!-- PRICING REVIEW: keep only this banner when pricing_review_required -->
       <div style="background:#fdecea;border-left:4px solid #c0392b;padding:10px 14px;font-size:14px;color:#7b241c;">
         <strong>Pricing review required</strong> – {{pricing_review_reason}}
       </div>

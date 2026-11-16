@@ -10,10 +10,10 @@ This repository contains clean-room versions of tools I designed and used in a p
 
 | Project | What it does | Status |
 |---|---|---|
-| [cjo – job order builder](skills/) | Client requirements document + rate card → complete job offer in HTML, ready for an ATS | in progress |
+| [cjo – job order builder (Claude skill)](skills/cjo/) | Client requirements document + rate card → complete job order in HTML, ready for an ATS | Done |
+| [cjo as an n8n workflow](workflows/) | The job order process automated in n8n, with a mock ATS API | in progress |
 | [PSF – candidate submission forms](skills/) | CV + tender requirements → filled personal submission form | Planned |
 | [rmap – client relationship map](skills/) | Emails + web research → map of decision-makers, relationship strength and next steps | Planned |
-| [cjo as an n8n workflow](workflows/) | The job order process automated in n8n, with a mock ATS API | in progress |
 
 ## Results of the original tools
 

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Job order – {{position}} – {{client}}</title>
+</head>
+<body style="margin:0;padding:24px;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#1f2933;">
+<div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #dde1e6;border-radius:8px;overflow:hidden;">
+
+  <!-- Header -->
+  <div style="background:#1f3a5f;color:#ffffff;padding:20px 24px;">
+    <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;opacity:0.8;">Job order · {{client}}</div>
+    <h1 style="margin:6px 0 0;font-size:24px;line-height:1.3;">{{position}}</h1>
+    <div style="margin-top:6px;font-size:13px;opacity:0.85;">{{headcount}} × {{seniority}} · {{location}} · {{work_mode_label}}</div>
+  </div>
+
+  <div style="padding:24px;">
+
+    <!-- Open points (delete if nothing is open and pricing is not under review) -->
+    <div style="background:#fff4e5;border-left:4px solid #e8a33d;padding:12px 16px;margin-bottom:20px;font-size:14px;">
+      <strong>Open points</strong>
+      <ul style="margin:8px 0 0;padding-left:20px;">
+        <!-- repeat: one item per unresolved missing_info entry / pricing review reason -->
+        <li>{{open_point}}</li>
+      </ul>
+    </div>
+
+    <!-- Key facts -->
+    <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:20px;">
+      <tr><td style="padding:6px 0;color:#52606d;width:42%;">Client</td><td style="padding:6px 0;"><strong>{{client}}</strong></td></tr>
+      <tr><td style="padding:6px 0;color:#52606d;border-top:1px solid #eef0f2;">Headcount</td><td style="padding:6px 0;border-top:1px solid #eef0f2;">{{headcount}}</td></tr>
+      <tr><td style="padding:6px 0;color:#52606d;border-top:1px solid #eef0f2;">Seniority</td><td style="padding:6px 0;border-top:1px solid #eef0f2;">{{seniority}}</td></tr>
+      <tr><td style="padding:6px 0;color:#52606d;border-top:1px solid #eef0f2;">Minimum experience</td><td style="padding:6px 0;border-top:1px solid #eef0f2;">{{min_experience_label}}</td></tr>
+      <tr><td style="padding:6px 0;color:#52606d;border-top:1px solid #eef0f2;">Location</td><td style="padding:6px 0;border-top:1px solid #eef0f2;">{{location}}</td></tr>
+      <tr><td style="padding:6px 0;color:#52606d;border-top:1px solid #eef0f2;">Work mode</td><td style="padding:6px 0;border-top:1px solid #eef0f2;">{{work_mode_label}}{{work_mode_details_suffix}}</td></tr>
+      <tr><td style="padding:6px 0;color:#52606d;border-top:1px solid #eef0f2;">Start date</td><td style="padding:6px 0;border-top:1px solid #eef0f2;">{{start_date}}</td></tr>
+      <tr><td style="padding:6px 0;color:#52606d;border-top:1px solid #eef0f2;">Duration</td><td style="padding:6px 0;border-top:1px solid #eef0f2;">{{duration_months}} months</td></tr>
+      <tr><td style="padding:6px 0;color:#52606d;border-top:1px solid #eef0f2;">Contract type</td><td style="padding:6px 0;border-top:1px solid #eef0f2;">B2B</td></tr>
+    </table>
+
+    <!-- Role -->
+    <h2 style="font-size:16px;margin:0 0 8px;color:#1f3a5f;">About the role</h2>
+    <p style="font-size:14px;line-height:1.6;margin:0 0 20px;">{{job_description}}</p>
+
+    <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:20px;">
+      <tr>
+        <td style="vertical-align:top;width:50%;padding-right:12px;">
+          <h2 style="font-size:16px;margin:0 0 8px;color:#1f3a5f;">Must have</h2>
+          <ul style="margin:0;padding-left:20px;line-height:1.6;">
+            <!-- repeat: must_have_skills -->
+            <li>{{skill}}</li>
+          </ul>
+        </td>
+        <td style="vertical-align:top;width:50%;padding-left:12px;">
+          <h2 style="font-size:16px;margin:0 0 8px;color:#1f3a5f;">Nice to have</h2>
+          <ul style="margin:0;padding-left:20px;line-height:1.6;">
+            <!-- repeat: nice_to_have_skills -->
+            <li>{{skill}}</li>
+          </ul>
+        </td>
+      </tr>
+    </table>
+
+    <h2 style="font-size:16px;margin:0 0 8px;color:#1f3a5f;">Languages</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px;">
+      <tr><td style="padding:4px 0;color:#52606d;width:42%;">Required</td><td style="padding:4px 0;">{{languages_required_joined}}</td></tr>
+      <tr><td style="padding:4px 0;color:#52606d;">Nice to have</td><td style="padding:4px 0;">{{languages_nice_to_have_joined}}</td></tr>
+    </table>
+
+    <!-- Commercials (internal) -->
+    <div style="border:1px solid #dde1e6;border-radius:6px;padding:16px;background:#f9fafb;">
+      <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#52606d;margin-bottom:8px;">Commercials · internal, not for candidates</div>
+
+      <!-- PRICING A: client_budget (keep only one of A / B / C) -->
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tr><td style="padding:4px 0;color:#52606d;width:42%;">Pricing basis</td><td style="padding:4px 0;">Client budget</td></tr>
+        <tr><td style="padding:4px 0;color:#52606d;">Client budget</td><td style="padding:4px 0;"><strong>{{client_budget}}</strong></td></tr>
+      </table>
+
+      <!-- PRICING B: rate_card -->
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tr><td style="padding:4px 0;color:#52606d;width:42%;">Pricing basis</td><td style="padding:4px 0;">Rate card (client asked for our rate)</td></tr>
+        <tr><td style="padding:4px 0;color:#52606d;">Rate card entry</td><td style="padding:4px 0;"><code style="font-size:13px;">{{role_key}} / {{seniority_key}}</code></td></tr>
+        <tr><td style="padding:4px 0;color:#52606d;">Daily rate (net, B2B)</td><td style="padding:4px 0;"><strong>{{rate_min}} – {{rate_max}} PLN</strong></td></tr>
+        <tr><td style="padding:4px 0;color:#52606d;">Est. contract value</td><td style="padding:4px 0;"><strong>{{value_min}} – {{value_max}} PLN</strong></td></tr>
+        <tr><td style="padding:4px 0;color:#52606d;">Calculation</td><td style="padding:4px 0;font-size:12px;color:#52606d;">rate × 21 days × {{duration_months}} months × {{headcount}} people</td></tr>
+      </table>
+
+      <!-- PRICING C: pricing_review_required -->
+      <div style="background:#fdecea;border-left:4px solid #c0392b;padding:10px 14px;font-size:14px;color:#7b241c;">
+        <strong>Pricing review required</strong> – {{pricing_review_reason}}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer / audit -->
+  <div style="padding:12px 24px;border-top:1px solid #eef0f2;font-size:12px;color:#7b8794;">
+    Generated by cjo (Claude skill) · {{generated_date}} · Human review: {{human_review_label}}
+  </div>
+</div>
+</body>
+</html>

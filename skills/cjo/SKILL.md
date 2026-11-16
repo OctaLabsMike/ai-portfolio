@@ -92,7 +92,7 @@ Fill `assets/job-order-template.html`:
 
 Deliver:
 1. The HTML as a downloadable file named `job-order-<client-slug>-<position-slug>.html`. If file output is not available, put it in one code block.
-2. Below it, 2–3 lines: pricing status, open points (if any) and the final JSON in a collapsed or short code block for traceability.
+2. Below it, 2–3 short bullets: pricing status and open points (if any). Do not print the final JSON unless the user asks for it, and never use HTML tags such as `<details>` in the chat reply: the chat does not render them.
 
 ## Example
 

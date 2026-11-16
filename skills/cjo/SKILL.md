@@ -11,6 +11,18 @@ This is the Claude version of the n8n workflow `workflows/02-requirements-extrac
 
 **Output language: always English**, whatever the language of the client document. Translate where needed.
 
+## Mandatory checkpoints – never skip
+
+The HTML job order is generated **only after every checkpoint that applies has been answered by the user**, each in its own turn:
+
+| # | Checkpoint | When it applies |
+|---|---|---|
+| 1 | Missing required fields (step 2) | `missing_info` is not empty |
+| 2 | **Rate source**: rate card / market check / manual (step 3a) | `client_budget` is empty – **always**, even if nothing was missing in step 1 |
+| 3 | **Margin** (step 3b) | a rate was chosen (any source, incl. client budget) |
+
+After the user answers one checkpoint, go to the next one. Do not generate the job order in the same turn as a checkpoint answer unless it was the last checkpoint. If you are about to render HTML, check this table first.
+
 ## Step 1 – Extract requirements
 
 Read the input. It can be pasted text, an uploaded .docx or an uploaded .pdf (extract the text first). Fill this schema using **only information stated in the document. Do not guess.**
@@ -72,7 +84,7 @@ If the user explicitly says to generate anyway, do it: unresolved fields are sho
 
 All arithmetic and rate-card lookups go through `scripts/lookup_rate.py` (run it with Python; it reads `assets/rate-card.xlsx`). Never calculate rates or contract values by hand and never take rates from general knowledge. Details and formulas: `references/rate-card.md`.
 
-Ask with the interactive question tool when available (same rules as step 2), otherwise in chat.
+**This step always requires the user's answers (checkpoints 2 and 3). Never pick a rate source or a margin yourself.** Ask with the interactive question tool when available (same rules as step 2), otherwise in chat.
 
 ### 3a. Choose the rate source
 
